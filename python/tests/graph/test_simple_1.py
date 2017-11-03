@@ -12,22 +12,20 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+from __future__ import absolute_import, division, print_function
 
-import cProfile
+from collections import namedtuple
+import itertools
 
-"""
-This function was copied from here:
-https://zapier.com/engineering/profiling-python-boss/
-"""
-def do_cprofile(func):
-    def profiled_func(*args, **kwargs):
-        profile = cProfile.Profile()
-        try:
-            profile.enable()
-            result = func(*args, **kwargs)
-            profile.disable()
-            return result
-        finally:
-            profile.print_stats()
-            profile.dump_stats("/tmp/stats.txt")
-    return profiled_func
+import numpy as np
+# Use this to create parameterized test cases
+from parameterized import parameterized
+
+from ..tests import PythonUnitTestCase
+from .base_test_generators import GenTestCases
+
+class TestSimple(object):
+
+  def __init__(self):
+    pass
+

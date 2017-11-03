@@ -17,7 +17,6 @@ from __future__ import absolute_import, division, print_function
 from collections import namedtuple
 from contextlib import contextmanager
 from glob import glob
-import itertools
 import os
 import shutil
 import tempfile

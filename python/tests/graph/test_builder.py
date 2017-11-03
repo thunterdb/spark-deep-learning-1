@@ -35,11 +35,16 @@ import sparkdl.graph.utils as tfx
 
 from ..tests import SparkDLTestCase
 from ..transformers.image_utils import _getSampleJPEGDir, getSampleImagePathsDF
+from ..utils import do_cprofile
 
 
 class GraphFunctionWithIsolatedSessionTest(SparkDLTestCase):
 
     def test_tf_consistency(self):
+        self._test_tf_consistency()
+
+    @do_cprofile
+    def _test_tf_consistency(self):
         """ Should get the same graph as running pure tf """
 
         x_val = 2702.142857
@@ -70,6 +75,7 @@ class GraphFunctionWithIsolatedSessionTest(SparkDLTestCase):
         # should be the same as that in the one exported directly from TensorFlow session
         self.assertEqual(str(gfn.graph_def), str(gdef_ref))
 
+    @do_cprofile
     def test_get_graph_elements(self):
         """ Fetching graph elements by names and other graph elements """
 
@@ -88,6 +94,7 @@ class GraphFunctionWithIsolatedSessionTest(SparkDLTestCase):
             self.assertEqual(tfx.tensor_name(z, g), "z:0")
             self.assertEqual(tfx.tensor_name(x, g), "x:0")
 
+    @do_cprofile
     def test_import_export_graph_function(self):
         """ Function import and export must be consistent """
 
@@ -104,8 +111,12 @@ class GraphFunctionWithIsolatedSessionTest(SparkDLTestCase):
         self.assertEqual(gfn_tgt.output_names, gfn_ref.output_names)
         self.assertEqual(str(gfn_tgt.graph_def), str(gfn_ref.graph_def))
 
-
     def test_keras_consistency(self):
+        self._test_keras_consistency()
+        assert False
+
+    @do_cprofile
+    def _test_keras_consistency(self):
         """ Exported model in Keras should get same result as original """
 
         img_fpaths = glob(os.path.join(_getSampleJPEGDir(), '*.jpg'))
