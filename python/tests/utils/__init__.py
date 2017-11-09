@@ -12,22 +12,3 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
-import cProfile
-
-"""
-This function was copied from here:
-https://zapier.com/engineering/profiling-python-boss/
-"""
-def do_cprofile(func):
-    def profiled_func(*args, **kwargs):
-        profile = cProfile.Profile()
-        try:
-            profile.enable()
-            result = func(*args, **kwargs)
-            profile.disable()
-            return result
-        finally:
-            profile.print_stats()
-            profile.dump_stats("/tmp/stats.txt")
-    return profiled_func
