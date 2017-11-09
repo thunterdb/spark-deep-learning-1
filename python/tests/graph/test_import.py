@@ -26,7 +26,7 @@ import glob
 import sparkdl.graph.utils as tfx
 from sparkdl.graph.input import TFInputGraph
 
-class TestSimple(object):
+class TestGraphImport(object):
 
   def __init__(self):
     pass
