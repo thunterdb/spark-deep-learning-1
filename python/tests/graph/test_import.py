@@ -184,7 +184,6 @@ def _build_graph():
   Given a session (implicitly), adds nodes of computations
 
   It takes a vector input, with vec_size columns and returns an int32 scalar.
-  :return:
   """
   x = tf.placeholder(tf.int32, shape=[_tensor_size], name=_tensor_input_name)
   _ = tf.reduce_max(x, name=_tensor_output_name)
@@ -192,7 +191,6 @@ def _build_graph():
 def _build_graph_var(session):
   """
   Given a session, adds nodes that include one variable.
-  :return:
   """
   x = tf.placeholder(tf.int32, shape=[_tensor_size], name=_tensor_input_name)
   w = tf.Variable(tf.ones(shape=[_tensor_size], dtype=tf.int32), name=_tensor_var_name)
@@ -209,8 +207,6 @@ def _check_output(gin, tf_input, expected):
   """
   Takes a TFInputGraph object (assumed to have the input and outputs of the given
   names above) and compares the outcome against some expected outcome.
-  :param ig:
-  :return: nothing
   """
   graph = tf.Graph()
   graph_def = gin.graph_def
