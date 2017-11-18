@@ -259,6 +259,8 @@ def _check_output(gin, tf_input, expected):
         # Working on integers, the calculation should be exact
         assert np.all(tgt_out == expected), (tgt_out, expected)
 
+
+# TODO: we could factorize with _check_output, but this is not worth the time doing it.
 def _check_output_2(gin, tf_input1, tf_input2, expected):
     """
     Takes a TFInputGraph object (assumed to have the input and outputs of the given
