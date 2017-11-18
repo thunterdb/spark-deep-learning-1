@@ -53,7 +53,6 @@ class TestGraphImport(object):
             gin = _build_graph_input(gin_fun)
             _check_input_novar(gin)
 
-    # TODO: we probably do not need this test
     def test_saved_graph_novar(self):
         with _make_temp_directory() as tmp_dir:
             saved_model_dir = os.path.join(tmp_dir, 'saved_model')
@@ -94,11 +93,18 @@ class TestGraphImport(object):
             gin = _build_graph_input_var(gin_fun)
             _check_input_novar(gin)
 
+    def test_graphdef2_novar(self):
+        gin = _build_graph_input_2(lambda session:
+                                 TFInputGraph.fromGraphDef(session.graph.as_graph_def(),
+                                                           [_tensor_input_name], [_tensor_output_name]))
+        _check_output_2(gin, np.array([1, 2, 3]), np.array([3, 3, 3]), 2)
 
 _serving_tag = "serving_tag"
 _serving_sigdef_key = 'prediction_signature'
 # The name of the input tensor
 _tensor_input_name = "input_tensor"
+# For testing graphs with 2 inputs
+_tensor_input_name_2 = "input_tensor_2"
 # The name of the output tensor (scalar)
 _tensor_output_name = "output_tensor"
 # The name of the variable
@@ -164,6 +170,7 @@ def _make_temp_directory():
     finally:
         shutil.rmtree(temp_dir)
 
+
 def _build_graph_input(gin_function):
     """
     Makes a session and a default graph, loads the simple graph into it, and then calls
@@ -172,6 +179,17 @@ def _build_graph_input(gin_function):
     graph = tf.Graph()
     with tf.Session(graph=graph) as s, graph.as_default():
         _build_graph()
+        return gin_function(s)
+
+
+def _build_graph_input_2(gin_function):
+    """
+    Makes a session and a default graph, loads the simple graph into it (graph_2), and then calls
+    gin_function(session) to return the graph input object
+    """
+    graph = tf.Graph()
+    with tf.Session(graph=graph) as s, graph.as_default():
+        _build_graph_2()
         return gin_function(s)
 
 
@@ -194,6 +212,18 @@ def _build_graph():
     """
     x = tf.placeholder(tf.int32, shape=[_tensor_size], name=_tensor_input_name)
     _ = tf.reduce_max(x, name=_tensor_output_name)
+
+
+def _build_graph_2():
+    """
+    Given a session (implicitly), adds nodes of computations with two inputs.
+
+    It takes a vector input, with vec_size columns and returns an int32 scalar.
+    """
+    x1 = tf.placeholder(tf.int32, shape=[_tensor_size], name=_tensor_input_name)
+    x2 = tf.placeholder(tf.int32, shape=[_tensor_size], name=_tensor_input_name_2)
+    # Make sure that the inputs are not used in a symmetric manner.
+    _ = tf.reduce_max(x1 - x2, name=_tensor_output_name)
 
 
 def _build_graph_var(session):
@@ -226,5 +256,22 @@ def _check_output(gin, tf_input, expected):
         tgt_fetch = tfx.get_tensor(_tensor_output_name, graph)
         # Run on the testing target
         tgt_out = sess.run(tgt_fetch, feed_dict={tgt_feed: tf_input})
+        # Working on integers, the calculation should be exact
+        assert np.all(tgt_out == expected), (tgt_out, expected)
+
+def _check_output_2(gin, tf_input1, tf_input2, expected):
+    """
+    Takes a TFInputGraph object (assumed to have the input and outputs of the given
+    names above) and compares the outcome against some expected outcome.
+    """
+    graph = tf.Graph()
+    graph_def = gin.graph_def
+    with tf.Session(graph=graph) as sess:
+        tf.import_graph_def(graph_def, name="")
+        tgt_feed1 = tfx.get_tensor(_tensor_input_name, graph)
+        tgt_feed2 = tfx.get_tensor(_tensor_input_name_2, graph)
+        tgt_fetch = tfx.get_tensor(_tensor_output_name, graph)
+        # Run on the testing target
+        tgt_out = sess.run(tgt_fetch, feed_dict={tgt_feed1: tf_input1, tgt_feed2: tf_input2})
         # Working on integers, the calculation should be exact
         assert np.all(tgt_out == expected), (tgt_out, expected)
