@@ -97,7 +97,7 @@ class TestGraphImport(object):
         gin = _build_graph_input_2(lambda session:
                                  TFInputGraph.fromGraphDef(session.graph.as_graph_def(),
                                                            [_tensor_input_name], [_tensor_output_name]))
-        _check_output_2(gin, np.array([1, 2, 3]), np.array([3, 3, 3]), 2)
+        _check_output_2(gin, np.array([1, 2, 3]), np.array([2, 2, 2]), 1)
 
 _serving_tag = "serving_tag"
 _serving_sigdef_key = 'prediction_signature'
