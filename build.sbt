@@ -54,6 +54,10 @@ libraryDependencies += "org.tensorflow" % "libtensorflow_jni" % "1.6.0"
 
 assemblyMergeStrategy in assembly := {
   case "requirements.txt" => MergeStrategy.concat
+  case PathList("org", "tensorflow", xs @ _*) => MergeStrategy.first
+  case PathList("org", "slf4j", xs @ _*) => MergeStrategy.first
+  case PathList("org", "scalactic", xs @ _*) => MergeStrategy.first
+  case PathList("com", "typesafeøooooo", xs @ _*) => MergeStrategy.first
   case x =>
     val oldStrategy = (assemblyMergeStrategy in assembly).value
     oldStrategy(x)
