@@ -17,7 +17,9 @@ sparkVersion := sparkVer
 
 scalaVersion := scalaVer
 
-spName := "databricks/spark-deep-learning"
+spName := "databricks/spark-deep-learning-gpu"
+
+name := "spark-deep-learning-gpu"
 
 // Don't forget to set the version
 version := s"1.0.0-spark$sparkBranch"
@@ -35,7 +37,8 @@ sparkComponents ++= Seq("mllib-local", "mllib", "sql")
 
 // add any Spark Package dependencies using spDependencies.
 // e.g. spDependencies += "databricks/spark-avro:0.1"
-spDependencies += s"databricks/tensorframes:0.3.0-s_${scalaMajorVersion}"
+// It is currently easier to simply embed the library in the lib/ directly
+//spDependencies += s"databricks/tensorframes-gpu:0.3.0-s_${scalaMajorVersion}"
 
 
 // These versions are ancient, but they cross-compile around scala 2.10 and 2.11.
@@ -52,10 +55,15 @@ libraryDependencies ++= Seq(
 
 assemblyMergeStrategy in assembly := {
   case "requirements.txt" => MergeStrategy.concat
+  case PathList("com", "typesafe", xs @ _*)         => MergeStrategy.first
+  case PathList("org", "scalactic", xs @ _*)         => MergeStrategy.first
+  case PathList("org", "slf4j", xs @ _*)         => MergeStrategy.first
   case x =>
     val oldStrategy = (assemblyMergeStrategy in assembly).value
     oldStrategy(x)
 }
+
+test in assembly := {}
 
 parallelExecution := false
 
